@@ -30,6 +30,13 @@ async function run() {
             res.send(result);
         });
 
+        //get all services data
+        app.get('/services', async (req, res) => {
+            const cursor = Services.find({});
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
     }
     finally {
 
