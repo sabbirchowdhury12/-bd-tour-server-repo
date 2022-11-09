@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { query } = require('express');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -60,9 +61,17 @@ async function run() {
             res.send(result);
         });
 
+        //review by data
+        app.get('/review/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await Reviews.findOne(query);
+            res.send(result);
+        });
+
+        // review data filter by email
         app.get('/reviews', async (req, res) => {
             let query = {};
-            // console.log(req.query.email);
             if (req.query.email) {
                 query = {
                     email: req.query.email
@@ -73,6 +82,13 @@ async function run() {
             res.send(result);
         });
 
+        //delete a review 
+        app.delete('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await Reviews.deleteOne(query);
+            res.send(result);
+        });
 
     }
     finally {
