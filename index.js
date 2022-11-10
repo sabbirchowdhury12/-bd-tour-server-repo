@@ -53,7 +53,7 @@ async function run() {
 
         //get data for limit 
         app.get('/limitServices', async (req, res) => {
-            const cursor = Services.find({});
+            const cursor = Services.find({}).sort({ date: -1 });
             const result = await cursor.limit(3).toArray();
             res.send(result);
         });
