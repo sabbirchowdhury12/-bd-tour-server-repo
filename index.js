@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { query } = require('express');
 require('dotenv').config();
@@ -25,6 +26,14 @@ async function run() {
         const Services = client.db('bdTour').collection('services');
         const Reviews = client.db('bdTour').collection('reviews');
 
+
+        //token
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.send({ token });
+        });
+
         //get data for limit 
         app.get('/limitServices', async (req, res) => {
             const cursor = Services.find({});
@@ -47,6 +56,13 @@ async function run() {
             res.send(result);
         });
 
+        //add a service 
+        app.post('/services', async (req, res) => {
+            const service = req.body;
+            const result = await Services.insertOne(service);
+            res.send(result);
+        });
+
         //get review data from client side
         app.post('/review', async (req, res) => {
             const review = req.body;
@@ -66,6 +82,23 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await Reviews.findOne(query);
+            res.send(result);
+        });
+
+        //update a review
+        app.put('/review/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const review = req.body;
+            const option = { upsert: true };
+            const updatedReview = {
+                $set: {
+                    tourist: review.tourist,
+                    rating: review.rating,
+                    message: review.message
+                }
+            };
+            const result = await Reviews.updateOne(filter, updatedReview, option);
             res.send(result);
         });
 
